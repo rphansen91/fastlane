@@ -1,0 +1,8 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.preferGoToSourceDefinition": true,
+  "files.exclude": {
+    "**/dist": true,
+    "**/node_modules": true,
+  }
+}
