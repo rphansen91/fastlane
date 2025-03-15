@@ -1,7 +1,7 @@
 {
   "name": "fastlane",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.2",
+  "description": "Fastlane is a fast and flexible API framework for Node.js. It automatically creates Express routes from your project's file structure, making it easy to build APIs quickly and efficiently.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
