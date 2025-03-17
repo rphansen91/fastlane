@@ -13,6 +13,18 @@ export function parseEvent (body: unknown) {
   return content
 }
 
+export function formatEvent (body: unknown) {
+  const content = JSON.stringify(body)
+
+  const data = Buffer.from(content).toString('base64')
+
+  return {
+    message: {
+      data
+    }
+  }
+}
+
 export function parseEventJson (body: unknown) {
   const content = parseEvent(body)
 
