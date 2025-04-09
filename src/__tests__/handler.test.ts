@@ -32,7 +32,10 @@ describe('methodHandler', () => {
   beforeEach(() => {
     req = {};
     res = {
-      json: jest.fn()
+      status: jest.fn(),
+      setHeader: jest.fn(),
+      json: jest.fn(),
+      send: jest.fn()
     };
     next = jest.fn();
   });
@@ -75,7 +78,61 @@ describe('methodHandler', () => {
     
     expect(next).toHaveBeenCalledWith(error);
   });
+
+  test('should handle response object', async () => {
+    const handler = methodHandler(() => new Response('Hello, world!', { status: 200, headers: { 'Content-Type': 'text/plain' } }));
+    await handler(req as Request, res as Response, next);
+    
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.setHeader).toHaveBeenCalledWith('content-type', 'text/plain');
+    await expect(res.send).toHaveBeenCalledWithStream('Hello, world!');
+  });
 });
 
 // For a more complete test suite, you would also want to test the attachRoutes function
 // This would require more complex mocking of the file system and dynamic imports 
+
+// extend just mock to handle toHaveBeenCalledWithStream
+
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toHaveBeenCalledWithStream(expected: string): R;
+    }
+  }
+}
+
+
+expect.extend({
+  async toHaveBeenCalledWithStream(received, expected) {
+    const stream = received.mock.calls[0][0];
+    if (!stream) {
+      return {
+        pass: false,
+        message: () => 'Expected to have been called with a stream, but it was not called'
+      };
+    }
+
+    if (stream instanceof ReadableStream) {
+      const reader = stream.getReader();
+      const chunks: string[] = [];
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(decoder.decode(value));
+      }
+      const result = chunks.join('');
+      const pass = result === expected;
+      return {
+        pass,
+        message: () => `Stream contains ${result}, but expected ${expected}`
+      }  
+    }
+
+    return {
+      pass: false,
+      message: () => `Expected to have been called with stream, but got ${received.mock.calls[0][0]}`
+    };
+  }
+});

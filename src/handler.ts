@@ -5,7 +5,13 @@ export function methodHandler(fn: (req: Request, res: Response) => unknown): Req
     try {
       const data = await fn(req, res);
 
-      if (typeof data === "undefined") {
+      if (data instanceof Response) {
+        for (const [key, value] of data.headers.entries()) {
+          res.setHeader(key, value);
+        }
+        res.status(data.status);
+        res.send(data.body);
+      } else if (typeof data === "undefined") {
         res.json({ success: true });
       } else if (Array.isArray(data)) {
         res.json({ data, success: true });
