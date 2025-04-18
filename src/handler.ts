@@ -5,6 +5,10 @@ export function methodHandler(fn: (req: Request, res: Response) => unknown): Req
     try {
       const data = await fn(req, res);
 
+      if (res.headersSent) {
+        return;
+      }
+
       if (data instanceof Response) {
         for (const [key, value] of data.headers.entries()) {
           res.setHeader(key, value);

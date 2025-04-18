@@ -16,7 +16,6 @@ export function attachRoutes(dir: string, importFn = (path: string) => import(pa
         const methods = methodImport?.default || methodImport;
         for (const methodName of methodNames) {
           if (typeof methods[methodName] === "function") {
-            console.log(`Attaching ${methodName} ${pathUrl}`);
             router[methodName.toLowerCase() as Lowercase<typeof methodName>](
               pathUrl,
               methodHandler(methods[methodName])
